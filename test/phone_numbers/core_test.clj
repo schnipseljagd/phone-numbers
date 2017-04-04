@@ -18,6 +18,11 @@
   (or (clojure.string/starts-with? string1 string2)
       (clojure.string/starts-with? string2 string1)))
 
+(defn debug [a b x]
+  (when x
+    (prn a ":" b))
+  x)
+
 (defn is-consistent [phone-list]
   (cond
     (empty? phone-list) nil
@@ -25,9 +30,32 @@
     :else (->> (for [a phone-list
                      b phone-list]
                  (when-not (= a b)
-                   (are-prefix? a b)))
+                   (debug a b (are-prefix? a b))))
                (filter true?)
                (empty?))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;  DATA
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn read-phone-data [file]
+  (->> (slurp file)
+       (clojure.string/split-lines)
+       (drop 1)
+       (map #(clojure.string/split % #","))
+       (map (fn [[name phone-number]]
+              [name (clojure.string/replace phone-number #"[^0-9]" "")]))
+       (set)
+       (into [])))
+
+(def phone-list-1
+  (read-phone-data "phone_data.txt"))
+
+(def phone-list-2
+  (read-phone-data "phone_data_10000.txt"))
+
+(def phone-list-3
+  (read-phone-data "phone_data_65535.txt"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  TESTS
@@ -53,4 +81,13 @@
 
 (deftest test-with-non-consistent-list-with-three-elements
   (is (false? (is-consistent list-fail-with-three-elements))))
+
+(deftest test-with-phone-list-1
+  (is (true? (is-consistent phone-list-1))))
+
+(deftest test-with-phone-list-2
+  (is (false? (is-consistent phone-list-2))))
+
+(deftest test-with-phone-list-3
+  (is (false? (is-consistent phone-list-3))))
 
