@@ -14,14 +14,8 @@
    ["Marc" "93456789"]
    ["Emergency" "911"]])
 
-(defn are-prefix? [[_ string1] [_ string2]]
-  (or (clojure.string/starts-with? string1 string2)
-      (clojure.string/starts-with? string2 string1)))
-
-(defn debug [a b x]
-  (when x
-    (prn a ":" b))
-  x)
+(defn is-prefix? [[_ string1] [_ string2]]
+  (clojure.string/starts-with? string1 string2))
 
 (defn is-consistent [phone-list]
   (cond
@@ -30,7 +24,7 @@
     :else (->> (for [a phone-list
                      b phone-list]
                  (when-not (= a b)
-                   (debug a b (are-prefix? a b))))
+                   (is-prefix? a b)))
                (filter true?)
                (empty?))))
 
